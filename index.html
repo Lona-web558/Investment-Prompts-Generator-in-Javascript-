@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SA Investing Prompt Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --sa-green: #007749;
+            --sa-gold: #FFB612;
+            --sa-red: #DE3831;
+            --sa-blue: #002395;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-container {
+            padding: 2rem 0;
+        }
+
+        .card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--sa-green) 0%, var(--sa-blue) 100%);
+            color: white;
+            padding: 2rem;
+            border: none;
+        }
+
+        .card-header h1 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 2rem;
+        }
+
+        .card-header p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+        }
+
+        .prompt-display {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 3rem 2rem;
+            margin: 2rem 0;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .prompt-text {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        .prompt-number {
+            display: inline-block;
+            background: var(--sa-gold);
+            color: #2d3748;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 700;
+            margin-right: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-generate {
+            background: linear-gradient(135deg, var(--sa-gold) 0%, #f59e0b 100%);
+            border: none;
+            color: #2d3748;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+            background: linear-gradient(135deg, #fcd34d 0%, var(--sa-gold) 100%);
+        }
+
+        .btn-generate:active {
+            transform: translateY(0);
+        }
+
+        .btn-generate i {
+            margin-right: 0.5rem;
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: var(--sa-green);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            font-weight: 600;
+        }
+
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--sa-green);
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .filter-section {
+            margin: 2rem 0;
+        }
+
+        .category-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .category-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .category-btn:hover {
+            border-color: var(--sa-green);
+            background: #f0fdf4;
+        }
+
+        .category-btn.active {
+            background: var(--sa-green);
+            color: white;
+            border-color: var(--sa-green);
+        }
+
+        .history-section {
+            margin-top: 2rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            padding: 0.8rem;
+            background: #f7fafc;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            border-left: 4px solid var(--sa-gold);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @media (max-width: 768px) {
+            .prompt-text {
+                font-size: 1.2rem;
+            }
+
+            .card-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .btn-generate {
+                padding: 0.8rem 2rem;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container main-container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h1><i class="bi bi-graph-up-arrow"></i> SA Investing Prompt Generator</h1>
+                        <p>Discover your next investment research topic</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Filter Section -->
+                        <div class="filter-section">
+                            <h5><i class="bi bi-funnel"></i> Filter by Category</h5>
+                            <div class="category-filter" id="categoryFilter">
+                                <button class="category-btn active" data-category="all">All Topics</button>
+                                <button class="category-btn" data-category="jse">JSE & Markets</button>
+                                <button class="category-btn" data-category="tax">Tax & Regulatory</button>
+                                <button class="category-btn" data-category="offshore">Offshore</button>
+                                <button class="category-btn" data-category="retirement">Retirement</button>
+                                <button class="category-btn" data-category="property">Property</button>
+                                <button class="category-btn" data-category="etf">ETFs</button>
+                                <button class="category-btn" data-category="alternative">Alternatives</button>
+                                <button class="category-btn" data-category="economic">Economic</button>
+                                <button class="category-btn" data-category="strategy">Strategy</button>
+                                <button class="category-btn" data-category="situations">Life Situations</button>
+                            </div>
+                        </div>
+
+                        <!-- Prompt Display -->
+                        <div class="prompt-display" id="promptDisplay">
+                            <div>
+                                <p class="prompt-text">Click the button below to generate a random investing prompt!</p>
+                            </div>
+                        </div>
+
+                        <!-- Generate Button -->
+                        <div class="text-center">
+                            <button class="btn btn-generate" id="generateBtn">
+                                <i class="bi bi-shuffle"></i> Generate Random Prompt
+                            </button>
+                        </div>
+
+                        <!-- Stats -->
+                        <div class="stats-container">
+                            <div class="stat-item">
+                                <div class="stat-number" id="totalPrompts">100</div>
+                                <div class="stat-label">Total Prompts</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number" id="generatedCount">0</div>
+                                <div class="stat-label">Generated</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number" id="availableCount">100</div>
+                                <div class="stat-label">Available</div>
+                            </div>
+                        </div>
+
+                        <!-- History Section -->
+                        <div class="history-section">
+                            <h5><i class="bi bi-clock-history"></i> Recent Prompts</h5>
+                            <div id="historyContainer"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const prompts = {
+            jse: [
+                "Analyze the current valuation of the JSE Top 40 compared to historical averages",
+                "Compare the performance of JSE resources stocks versus financials over the past decade",
+                "Explain the impact of load shedding on JSE-listed mining companies",
+                "Which JSE sectors typically perform best during rand weakness?",
+                "Analyze Naspers/Prosus discount to NAV and investment implications",
+                "Compare dividend yields across JSE blue chips",
+                "Evaluate the JSE Small Cap index as an investment opportunity",
+                "How have JSE property stocks performed since REIT legislation changes?",
+                "Analyze currency hedging strategies for South African investors",
+                "Compare JSE returns to emerging market peers over 20 years"
+            ],
+            tax: [
+                "Explain the tax implications of investing through a TFSA versus RA",
+                "How does the annual R11 million offshore allowance work?",
+                "What are the CGT implications of emigrating financially?",
+                "Compare tax efficiency of unit trusts versus ETFs in South Africa",
+                "Explain dividend withholding tax for local versus foreign dividends",
+                "How does the two-pot retirement system affect investment strategy?",
+                "Tax treatment of cryptocurrency investments in South Africa",
+                "Section 12J tax incentive analysis for venture capital",
+                "Estate duty considerations for investment portfolios",
+                "Tax implications of receiving foreign inheritance as SA resident"
+            ],
+            offshore: [
+                "Build a diversified offshore portfolio starting with R100,000",
+                "Compare costs of investing offshore via local platforms versus international brokers",
+                "Feeder funds versus direct offshore investing: pros and cons",
+                "Which offshore ETFs offer best exposure to US technology stocks?",
+                "Explain the 30% offshore allowance within retirement funds",
+                "Currency timing strategies for transferring funds offshore",
+                "Compare Easy Equities, Interactive Brokers, and Saxo for SA investors",
+                "Best offshore bond exposure for South African investors",
+                "Analyze geographic diversification benefits for SA portfolios",
+                "Tax-efficient repatriation strategies for offshore investments"
+            ],
+            retirement: [
+                "Calculate required savings rate for retirement at age 60 earning R50k/month",
+                "Living annuity versus guaranteed annuity comparison",
+                "Optimal asset allocation at different ages for retirement annuities",
+                "How much can you preserve when changing jobs in South Africa?",
+                "Should you top up retirement annuities or invest in TFSAs first?",
+                "Impact of early retirement on required savings rate",
+                "Preservation fund versus retirement annuity for retrenched funds",
+                "Government pension versus private retirement savings strategies",
+                "Calculating sustainable withdrawal rates for South African retirees",
+                "Impact of inflation on retirement savings over 30 years"
+            ],
+            property: [
+                "Analyze rental yields in major South African cities",
+                "REITs versus physical property investment comparison",
+                "Sectional title versus full title investment properties",
+                "Calculate break-even point for buy-to-let in Cape Town",
+                "Impact of transfer duties on property investment returns",
+                "Commercial versus residential property investment analysis",
+                "Student accommodation investment opportunities near universities",
+                "Holiday let versus long-term rental profitability",
+                "Property development versus buy-and-hold strategies",
+                "Leveraging property investments: risks and rewards"
+            ],
+            etf: [
+                "Compare fees across South African ETF providers",
+                "Satrix, Sygnia, or CoreShares: which offers best value?",
+                "Smart beta ETFs available on the JSE and their strategies",
+                "Build a core-satellite portfolio using JSE-listed ETFs",
+                "Currency-hedged versus unhedged offshore ETFs",
+                "Dividend ETFs versus growth ETFs for different life stages",
+                "Bond ETF strategies in rising interest rate environments",
+                "Tracking error analysis of major JSE index funds",
+                "ESG ETF options available to South African investors",
+                "Rebalancing strategies for multi-asset ETF portfolios"
+            ],
+            alternative: [
+                "Krugerrands versus gold ETFs as inflation hedge",
+                "Bitcoin and cryptocurrency allocation in SA portfolios",
+                "Peer-to-peer lending platforms in South Africa",
+                "Art and collectibles as alternative investments",
+                "Wine investment opportunities and considerations",
+                "Renewable energy investment options for individuals",
+                "Private equity access for non-institutional investors",
+                "Livestock and agricultural investment schemes",
+                "Impact investing opportunities in South Africa",
+                "Hedge fund accessibility and suitability for retail investors"
+            ],
+            economic: [
+                "How do interest rate changes affect different asset classes?",
+                "Rand strength predictors and investment implications",
+                "Impact of credit rating downgrades on investment strategy",
+                "Load shedding's economic impact on portfolio positioning",
+                "Inflation hedging strategies for South African investors",
+                "Commodity price cycles and JSE resources exposure",
+                "Political risk assessment for long-term investing",
+                "China economic slowdown effects on SA investment returns",
+                "Water scarcity investment implications",
+                "Youth unemployment trends and sectoral impacts"
+            ],
+            strategy: [
+                "60/40 portfolio adaptation for South African context",
+                "Dollar-cost averaging versus lump sum investing analysis",
+                "Core-satellite investment strategy implementation",
+                "Risk parity portfolio construction with SA assets",
+                "Tactical asset allocation during market volatility",
+                "Rebalancing frequency optimization for taxable accounts",
+                "Concentration risk in portfolios heavy on SA exposure",
+                "Inflation-plus return targeting strategies",
+                "Building a defensive portfolio for uncertain times",
+                "Growth versus value investing in South African context"
+            ],
+            situations: [
+                "Investment strategy for receiving R2 million inheritance",
+                "25-year-old starting first job: investment roadmap",
+                "50-year-old with no retirement savings: catch-up strategies",
+                "Emigration financial planning and investment unwinding",
+                "University fund planning for newborn child",
+                "Windfall management: bonus or business sale proceeds",
+                "Divorce settlement investment and income generation",
+                "Retrenchment package investment strategy",
+                "First-time investor with R5,000 monthly savings",
+                "Early retirement at 50 with R10 million portfolio management"
+            ]
+        };
+
+        const categoryNames = {
+            jse: "JSE & Markets",
+            tax: "Tax & Regulatory",
+            offshore: "Offshore Investing",
+            retirement: "Retirement Planning",
+            property: "Property Investment",
+            etf: "ETFs & Index Investing",
+            alternative: "Alternative Investments",
+            economic: "Economic Analysis",
+            strategy: "Strategy & Portfolio",
+            situations: "Life Situations"
+        };
+
+        let currentCategory = 'all';
+        let generatedCount = 0;
+        let history = [];
+
+        // Get all prompts
+        function getAllPrompts() {
+            const allPrompts = [];
+            let index = 1;
+            for (const category in prompts) {
+                prompts[category].forEach(prompt => {
+                    allPrompts.push({ number: index++, text: prompt, category: category });
+                });
+            }
+            return allPrompts;
+        }
+
+        // Get filtered prompts
+        function getFilteredPrompts() {
+            const allPrompts = getAllPrompts();
+            if (currentCategory === 'all') {
+                return allPrompts;
+            }
+            return allPrompts.filter(p => p.category === currentCategory);
+        }
+
+        // Generate random prompt
+        function generatePrompt() {
+            const availablePrompts = getFilteredPrompts();
+            const randomIndex = Math.floor(Math.random() * availablePrompts.length);
+            const selectedPrompt = availablePrompts[randomIndex];
+
+            displayPrompt(selectedPrompt);
+            addToHistory(selectedPrompt);
+            updateStats();
+        }
+
+        // Display prompt
+        function displayPrompt(prompt) {
+            const display = document.getElementById('promptDisplay');
+            display.classList.remove('fade-in');
+            
+            setTimeout(() => {
+                display.innerHTML = `
+                    <div>
+                        <p class="prompt-text">
+                            <span class="prompt-number">#${prompt.number}</span>
+                            ${prompt.text}
+                        </p>
+                        <div class="category-badge">${categoryNames[prompt.category]}</div>
+                    </div>
+                `;
+                display.classList.add('fade-in');
+            }, 100);
+        }
+
+        // Add to history
+        function addToHistory(prompt) {
+            generatedCount++;
+            history.unshift(prompt);
+            if (history.length > 5) {
+                history.pop();
+            }
+
+            const historyContainer = document.getElementById('historyContainer');
+            historyContainer.innerHTML = history.map(h => `
+                <div class="history-item">
+                    <span class="prompt-number">#${h.number}</span> ${h.text}
+                </div>
+            `).join('');
+        }
+
+        // Update stats
+        function updateStats() {
+            document.getElementById('generatedCount').textContent = generatedCount;
+            document.getElementById('availableCount').textContent = getFilteredPrompts().length;
+        }
+
+        // Category filter
+        document.getElementById('categoryFilter').addEventListener('click', (e) => {
+            if (e.target.classList.contains('category-btn')) {
+                // Remove active class from all buttons
+                document.querySelectorAll('.category-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Add active class to clicked button
+                e.target.classList.add('active');
+                
+                // Update current category
+                currentCategory = e.target.dataset.category;
+                
+                // Update stats
+                updateStats();
+            }
+        });
+
+        // Generate button
+        document.getElementById('generateBtn').addEventListener('click', generatePrompt);
+
+        // Keyboard shortcut (Space or Enter)
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'Enter') {
+                e.preventDefault();
+                generatePrompt();
+            }
+        });
+
+        // Initialize
+        updateStats();
+    </script>
+</body>
+</html>
